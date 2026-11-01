@@ -27,6 +27,8 @@ No server, no build step, no secrets in the code.
 - **Lock the vault** (Lock button) before walking away. Don't use it on shared or public computers.
 - **Never commit** exported backups, phrases or keys. If one ever lands in the repo, treat that wallet as compromised and move the funds to a new wallet. Git history keeps deleted files.
 
+Dev# Alok
+
 ## Limits to know about
 - Encryption protects the stored data. It does not protect you from malware on your device or from someone watching while the vault is unlocked.
 - Balance lookups send your addresses to public services (publicnode, Blockscout, Blockstream, CoinGecko). They can see which addresses you check.
