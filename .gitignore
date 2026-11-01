@@ -1,0 +1,8 @@
+*backup*.json
+vault*.json
+*phrase*
+*seed*
+*.key
+*.pem
+.env
+.DS_Store
