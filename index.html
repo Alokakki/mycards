@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-sOIyRNUN1OIPCWh+HpIgNmWKFF3J4/mwj3v+8hXU3WM='; style-src 'sha256-tIm//vlyWKMX3n1XQkVymIHXf/42htDhTHqk6AtrbRQ=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://*.publicnode.com https://mainnet.era.zksync.io https://*.blockscout.com https://blockstream.info https://api.coingecko.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>Vault Cards</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Bebas+Neue&display=swap">
+<style>
+:root{--bg:#f6f8fa;--surface:#fff;--text:#1c2733;--muted:#7a8794;--line:#e6eaee;--accent:#2b8a9e;--accent-h:#237789;--tint:#e8f4f7;--danger:#c0504d;--warn:#fff8e6;--warnl:#f0dfae;--shadow:0 1px 2px rgba(20,40,60,.05),0 4px 14px rgba(20,40,60,.06);--shadow-h:0 2px 4px rgba(20,40,60,.06),0 10px 24px rgba(20,40,60,.10);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.hidden{display:none!important}
+.screen{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+button,input,textarea{font:inherit;color:inherit}
+.btn{border:0;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:600;transition:background .2s,transform .15s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.primary{background:var(--accent);color:#fff}.primary:hover{background:var(--accent-h);box-shadow:var(--shadow)}
+.ghost{background:transparent;color:var(--muted)}.ghost:hover{background:var(--tint);color:var(--accent)}
+.field{display:block;margin-bottom:14px}
+.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);outline:0;transition:border-color .2s,box-shadow .2s}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--tint)}
+textarea.input{resize:vertical;min-height:76px}
+#login{min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:grid;place-items:center;padding:24px}
+.panel{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:32px;box-shadow:var(--shadow)}
+.logo{width:42px;height:42px;border-radius:12px;background:var(--tint);color:var(--accent);display:grid;place-items:center;font-size:20px;margin-bottom:18px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 24px}
+.err{color:var(--danger);font-size:13px;min-height:18px;margin:-4px 0 8px}
+.switch{text-align:center;margin:16px 0 0;font-size:13px;color:var(--muted)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:980px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:12px}
+.bar h2{margin:0;font-size:18px;flex:1;letter-spacing:-.01em}
+main{max-width:980px;margin:0 auto;padding:24px 24px 60px}
+.total{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.total small{color:var(--muted);font-size:13px;display:block}
+.total .amt{font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.note{background:var(--warn);border:1px solid var(--warnl);border-radius:12px;padding:10px 14px;font-size:13px;margin-bottom:16px;color:#6b5a1f}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{background:var(--cbg,var(--surface));border:1px solid var(--cbd,var(--line));border-radius:16px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;transition:transform .2s,box-shadow .2s;animation:fade .35s ease}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-h)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--tint);padding:3px 9px;border-radius:99px}
+.title{font-family:'Poppins','Segoe UI',-apple-system,sans-serif;font-weight:600;font-size:22px;letter-spacing:.01em;text-align:center;color:var(--text);margin:2px 0 4px}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;word-break:break-all}
+.bal{display:flex;align-items:center;justify-content:space-between;background:var(--tint);border-radius:10px;padding:9px 12px}
+.bal b{font-size:20px;display:block;line-height:1.2}.bal span{color:var(--muted);font-size:12.5px}
+.foot{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:2px}
+.acts{display:flex;gap:2px}
+.mini{white-space:nowrap;border:0;background:transparent;color:var(--muted);padding:4px 8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:background .2s,color .2s}
+.mini:hover{background:var(--tint);color:var(--accent)}.mini.del:hover{color:var(--danger)}
+.empty{text-align:center;color:var(--muted);padding:70px 20px}
+.empty b{display:block;color:var(--text);font-size:17px;margin-bottom:4px}
+.scrim{position:fixed;inset:0;background:rgba(15,25,35,.3);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;z-index:20;animation:fadeo .2s ease;overflow:auto}
+@keyframes fadeo{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-width:430px;background:var(--surface);border-radius:18px;padding:26px;box-shadow:var(--shadow-h);animation:fade .25s ease}
+.row{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--text);color:#fff;padding:9px 16px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:30}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.chs{display:flex;flex-direction:column}.crow{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 0;border-top:1px solid var(--line)}.crow span:last-child{color:var(--muted);text-align:right}
+.btn.on{background:var(--tint);color:var(--accent)}
+.danger{background:var(--danger);color:#fff}.danger:hover{opacity:.9}.danger:disabled{opacity:.45;cursor:default}
+.bar .btn{padding:9px 13px}
+@media(max-width:600px){.bar{flex-wrap:wrap}.bar h2{flex-basis:100%}}
+.modebar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--tint);color:var(--accent-h);border-radius:12px;padding:8px 8px 8px 16px;font-size:14px;font-weight:600;margin-bottom:16px}
+.mbb{display:flex;gap:6px}
+.card.pick{cursor:pointer;outline:2px dashed var(--accent);outline-offset:-2px}
+.card.sel{outline:2px solid var(--danger)}
+.pickrow{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--accent);text-align:center}
+.card.sel .pickrow{color:var(--danger)}
+.titlerow{display:flex;align-items:center;justify-content:center;gap:6px}
+.pen{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:6px;opacity:.75;transition:background .2s,color .2s,opacity .2s}
+.pen:hover{color:var(--accent);background:var(--tint);opacity:1}
+.title.ph{color:var(--muted);font-weight:500}
+.titlein{width:100%;font-family:'Poppins','Segoe UI',-apple-system,sans-serif;font-size:20px;font-weight:600;text-align:center;color:var(--text);background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:4px 10px;outline:0;box-shadow:0 0 0 3px var(--tint)}
+#login{min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:grid;place-items:center;padding:28px 24px;background:#eef0f3}
+.lwrap{position:relative;width:100%;max-width:880px}
+.dot{position:absolute;border-radius:50%;background:#f7882f;z-index:0}.d1{width:58px;height:58px;left:-22px;top:-22px}.d2{width:64px;height:64px;right:-24px;bottom:-24px}
+.burst{position:absolute;left:-26px;bottom:18px;width:62px;z-index:2}
+.lcard{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#fff;border-radius:28px;box-shadow:0 22px 60px rgba(20,30,40,.13);padding:16px}
+.lform{display:flex;flex-direction:column;justify-content:center;padding:34px 38px}
+.wel{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:68px;line-height:1;letter-spacing:.02em;text-align:center;margin:0;color:#17181a}
+.wsub{text-align:center;font-size:12.5px;color:#444;margin:6px 0 28px}
+.lin{display:flex;align-items:center;gap:10px;background:#f1f2f4;border-radius:10px;padding:0 14px;margin-bottom:14px;transition:box-shadow .2s}
+.lin:focus-within{box-shadow:0 0 0 2px #f7a468}
+.lin input{flex:1;min-width:0;border:0;background:transparent;outline:0;padding:14px 0;font-size:14px;color:#17181a}
+.lbtn{width:100%;background:#17181a;color:#fff;border:0;border-radius:10px;padding:14px;font-weight:700;letter-spacing:.14em;font-size:12.5px;cursor:pointer;transition:background .2s,transform .15s}
+.lbtn:hover{background:#f26a21}.lbtn:active{transform:scale(.98)}
+.hint{text-align:center;font-size:12px;color:var(--muted);margin:16px 0 0}
+.lart{border-radius:22px;overflow:hidden;min-height:430px}.lart svg{display:block;width:100%;height:100%}
+@media(max-width:760px){.lcard{grid-template-columns:1fr}.lart{display:none}.lform{padding:26px 18px}.dot,.burst{display:none}}
+/* login-style cards */
+:root{--bg:#eef0f3;--accent:#f26a21;--accent-h:#d9570f;--tint:#fdeadd;--shadow:0 14px 40px rgba(20,30,40,.09);--shadow-h:0 22px 52px rgba(20,30,40,.15)}
+.primary{background:#17181a}.primary:hover{background:var(--accent)}
+.bar h2{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:32px;letter-spacing:.03em}
+.input{background:#f1f2f4;border-color:transparent}.input:focus{background:#fff;border-color:var(--accent)}
+.modal{border-radius:26px;padding:30px}.modal h1{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:34px;letter-spacing:.03em}
+.total{border:0;border-radius:26px;padding:22px 28px}
+.total .amt{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:50px;letter-spacing:.02em;line-height:1.05}
+.grid{gap:26px;padding-top:6px}.note{margin-bottom:22px}
+.card{position:relative;background:var(--surface);border:0;border-radius:26px;padding:26px 22px 20px;box-shadow:var(--shadow);gap:12px}
+.card::before{content:"";position:absolute;left:-9px;top:-9px;width:24px;height:24px;border-radius:50%;background:#f7882f;box-shadow:0 4px 10px rgba(242,106,33,.35)}
+.title{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:34px;line-height:1.05;letter-spacing:.03em}
+.titlein{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:30px}
+.mono{background:#f1f2f4;border:0}
+.bal{background:#17181a;color:#fff;border-radius:14px;padding:12px 16px}.bal span{color:#aab1ba}.bal b{color:#fff;font-size:24px}
+.hint a{color:var(--accent);cursor:pointer;font-weight:600}.hint a:hover{text-decoration:underline}
+.warn{font-size:12px;color:#8a6a1f;background:#fff8e6;border:1px solid #f0dfae;border-radius:10px;padding:8px 10px;margin:-4px 0 14px}
+</style>
+</head>
+<body>
+
+<section id="login" class="screen hidden">
+  <div class="lwrap">
+    <i class="dot d1"></i><i class="dot d2"></i>
+    <svg class="burst" viewBox="0 0 70 70" aria-hidden="true"><g stroke="#f26a21" stroke-width="5" stroke-linecap="round"><line x1="35" y1="4" x2="35" y2="22"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(36 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(72 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(108 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(144 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(180 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(216 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(252 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(288 35 35)"/><line x1="35" y1="4" x2="35" y2="22" transform="rotate(324 35 35)"/></g></svg>
+    <div class="lcard">
+      <div class="lform">
+        <h1 class="wel">Welcome</h1>
+        <p class="wsub" id="wsub">We are glad to see you back with us</p>
+        <label class="lin"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#6b7480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><input id="em" type="text" autocomplete="username" placeholder="Username" spellcheck="false"></label>
+        <label class="lin"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#6b7480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="pw" type="password" autocomplete="current-password" placeholder="Password"></label>
+        <label class="lin hidden" id="lc"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#6b7480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="pw2" type="password" autocomplete="new-password" placeholder="Confirm password"></label>
+        <div class="err" id="err"></div>
+        <button class="lbtn" id="go">LOGIN</button>
+        <p class="hint" id="lh"></p>
+        <p class="hint" id="lx"><a id="lreset">Forgot password? Erase vault</a><span id="lsep"> · </span><a id="limpa">Import backup</a></p>
+        <input type="file" id="ifile" accept=".json,application/json" class="hidden">
+      </div>
+      <div class="lart">
+        <svg viewBox="0 0 400 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="og" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7954a"/><stop offset="1" stop-color="#e2531a"/></linearGradient>
+            <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3f5fb"/><stop offset="1" stop-color="#8ec9de"/></linearGradient>
+            <g id="pod"><path d="M-24 0Q-24-26 0-26Q24-26 24 0Z" fill="#b4c8d3"/><path d="M-24 0Q0 10 24 0Z" fill="#86a0b0"/><path d="M-10 4V22M0 6V28M10 4V20" stroke="#86a0b0" stroke-width="2" stroke-linecap="round"/></g>
+          </defs>
+          <rect width="400" height="480" fill="url(#og)"/>
+          <path d="M50 480V230Q50 60 200 60Q350 60 350 230V480Z" fill="url(#sg)"/>
+          <use href="#pod" transform="translate(125 130)"/><use href="#pod" transform="translate(285 100) scale(.8)"/><use href="#pod" transform="translate(320 190) scale(.6)"/><use href="#pod" transform="translate(80 200) scale(.7)"/><use href="#pod" transform="translate(205 70) scale(.55)"/>
+          <path d="M0 480V440L40 420L70 436L110 410L150 438L200 424L250 440L290 412L330 436L370 418L400 432V480Z" fill="#2c5568"/>
+          <path d="M0 480V460L60 446L120 462L200 448L280 464L340 450L400 460V480Z" fill="#3f7a90"/>
+          <circle cx="62" cy="452" r="6" fill="#f26a2b"/><circle cx="338" cy="456" r="5" fill="#f26a2b"/><circle cx="300" cy="448" r="4" fill="#f7954a"/>
+          <g transform="translate(200 270)">
+            <ellipse cx="0" cy="168" rx="46" ry="7" fill="#000" opacity=".2"/>
+            <rect x="-26" y="92" width="22" height="70" rx="8" fill="#e8561f"/><rect x="4" y="92" width="22" height="70" rx="8" fill="#e8561f"/>
+            <rect x="-30" y="152" width="28" height="14" rx="6" fill="#3a3f47"/><rect x="2" y="152" width="28" height="14" rx="6" fill="#3a3f47"/>
+            <rect x="-58" y="18" width="20" height="62" rx="10" fill="#f26a2b"/><rect x="38" y="18" width="20" height="62" rx="10" fill="#f26a2b"/>
+            <rect x="-40" y="10" width="80" height="96" rx="22" fill="#f26a2b"/><rect x="-34" y="62" width="68" height="7" fill="#c9481a" opacity=".6"/>
+            <rect x="-60" y="74" width="22" height="16" rx="7" fill="#3a3f47"/><rect x="38" y="74" width="22" height="16" rx="7" fill="#3a3f47"/>
+            <circle cx="0" cy="-24" r="36" fill="#f5cfa8"/>
+            <path d="M-36 -28Q-34-66 0-66Q34-66 36-28Q20-48 0-46Q-20-48-36-28Z" fill="#4a2c1a"/>
+            <rect x="-38" y="-34" width="76" height="10" rx="5" fill="#2b2f36"/><rect x="-30" y="-42" width="60" height="26" rx="12" fill="#2b2f36"/>
+            <rect x="-25" y="-38" width="23" height="18" rx="8" fill="#7fd0ef"/><rect x="2" y="-38" width="23" height="18" rx="8" fill="#7fd0ef"/>
+            <path d="M-8 -2Q0 4 8 -2" stroke="#8a4b2a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="app" class="screen hidden">
+  <header><div class="bar">
+    <h2>My Wallets</h2>
+    <button class="btn ghost" id="out">Lock</button>
+    <button class="btn ghost" id="bk">Backup</button>
+    <button class="btn ghost" id="bedit">✎ Edit</button>
+    <button class="btn ghost" id="bdel">Delete</button>
+    <button class="btn primary" id="add">+ Add Card</button>
+  </div></header>
+  <main>
+    <div class="modebar hidden" id="mb"><span id="mbt"></span><span class="mbb"><button class="btn danger hidden" id="mbd">Delete</button><button class="btn ghost" id="mbc">Done</button></span></div>
+    <div class="total"><div><small>Total Funds</small><div class="amt" id="tot">—</div><small id="totn"></small></div><button class="btn ghost" id="ref">↻ Refresh balances</button></div>
+    <div class="note hidden" id="blocked">Live balances couldn’t be loaded. Some previews block requests to block explorers and RPC nodes. If so, download the file and open it in your browser to see live funds.</div>
+    <div class="grid" id="grid"></div>
+    <div class="empty hidden" id="empty"><b>No cards yet</b>Tap “Add Card” to save a wallet.</div>
+  </main>
+</section>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var ITER=600000,KEY=null,DB=null,META=null,pq=Promise.resolve(),fails=0,lt=null,hiddenAt=0,mem={};
+  var user=null,bal={},shown={},price=null,mode=null,sel={},editing={},draft=null,rendering=false;
+  var enc=new TextEncoder(),dec=new TextDecoder();
+  function rget(k){try{var v=localStorage.getItem(k);return v===null&&k in mem?mem[k]:v}catch(e){return k in mem?mem[k]:null}}
+  function rset(k,v){mem[k]=v;try{localStorage.setItem(k,v)}catch(e){}}
+  function rdel(k){delete mem[k];try{localStorage.removeItem(k)}catch(e){}}
+  function readVault(){try{var v=JSON.parse(rget('vc_vault'));return v&&v.salt&&v.iv&&v.ct&&v.iter?v:null}catch(e){return null}}
+  function b64(buf){var a=new Uint8Array(buf),t='';for(var i=0;i<a.length;i++)t+=String.fromCharCode(a[i]);return btoa(t)}
+  function unb64(t){var x=atob(t),a=new Uint8Array(x.length);for(var i=0;i<x.length;i++)a[i]=x.charCodeAt(i);return a}
+  function derive(pw,salt,iter){return crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:iter,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])})}
+  function persist(k,j,m){var iv=crypto.getRandomValues(new Uint8Array(12));return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,enc.encode(j)).then(function(ct){rset('vc_vault',JSON.stringify({v:1,iter:m.iter,salt:m.salt,iv:b64(iv),ct:b64(ct)}))})}
+  function save(l){DB.cards=l;var k=KEY,j=JSON.stringify(DB),m=META;pq=pq.then(function(){return persist(k,j,m)}).catch(function(){toast('Couldn’t save changes')})}
+  function legacy(){var out=[],ks=[];try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&(k.indexOf('vc_cards_')===0||k==='vc_session'||k==='vc_users'))ks.push(k)}}catch(e){}
+    ks.forEach(function(k){if(k.indexOf('vc_cards_')===0){try{out=out.concat(JSON.parse(localStorage.getItem(k))||[])}catch(e){}}});return{cards:out,keys:ks}}
+  function create(u,pw){var salt=crypto.getRandomValues(new Uint8Array(16));META={iter:ITER,salt:b64(salt)};
+    return derive(pw,salt,ITER).then(function(k){KEY=k;var lg=legacy();DB={u:u,cards:lg.cards};return persist(KEY,JSON.stringify(DB),META).then(function(){lg.keys.forEach(rdel)})})}
+  function unlock(u,pw){var v=readVault();return derive(pw,unb64(v.salt),v.iter).then(function(k){
+    return crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(v.iv)},k,unb64(v.ct)).then(function(pt){var d=JSON.parse(dec.decode(pt));if(d.u!==u)throw 0;KEY=k;META={iter:v.iter,salt:v.salt};DB=d})})}
+  function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;return n}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove('show')},1600)}
+  function copy(s,m,clr){if(clr)setTimeout(function(){try{navigator.clipboard.writeText('')}catch(e){}},30000);(navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(function(){toast(m)}).catch(function(){var t=document.createElement('textarea');t.value=s;document.body.appendChild(t);t.select();try{document.execCommand('copy');toast(m)}catch(e){toast('Copy failed')}t.remove()})}
+  function fmt(t){return new Date(t).toLocaleString(undefined,{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'})}
+  function usd(n){return n.toLocaleString(undefined,{style:'currency',currency:'USD'})}
+  function cards(){return DB?DB.cards:[]}
+  function net(a){if(/^0x[0-9a-fA-F]{40}$/.test(a))return'ETH';if(/^(bc1[a-z0-9]{20,70}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(a))return'BTC';return null}
+
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  function loginMode(){var setup=!readVault();
+    $('lc').classList.toggle('hidden',!setup);$('go').textContent=setup?'CREATE VAULT':'UNLOCK';
+    $('wsub').textContent=setup?'Create a username and a strong master password':'We are glad to see you back with us';
+    $('lh').textContent=setup?'Use 10+ characters. A long passphrase is best. It can’t be recovered if you forget it.':'';
+    $('lreset').classList.toggle('hidden',setup);$('lsep').classList.toggle('hidden',setup);
+    $('pw').autocomplete=setup?'new-password':'current-password';$('err').textContent=''}
+  function show(){$('login').classList.toggle('hidden',!!user);$('app').classList.toggle('hidden',!user);if(user){render();load()}}
+  function submit(){
+    var u=$('em').value.trim().toLowerCase(),p=$('pw').value,setup=!readVault(),er=$('err');
+    if(!u||!p){er.textContent='Enter a username and password.';return}
+    if(!window.crypto||!crypto.subtle){er.textContent='Secure encryption isn’t available here. Use HTTPS or a modern browser.';return}
+    if(setup){if(u.length<3){er.textContent='Username must be at least 3 characters.';return}
+      if(p.length<10){er.textContent='Password must be at least 10 characters.';return}
+      if(p!==$('pw2').value){er.textContent='Passwords don’t match.';return}}
+    $('go').disabled=true;er.textContent=setup?'Creating your vault…':'Unlocking…';
+    (setup?create(u,p):unlock(u,p)).then(function(){user=DB.u;$('pw').value='';$('pw2').value='';er.textContent='';fails=0;show();arm()})
+    .catch(function(){fails++;er.textContent=setup?'Couldn’t create the vault.':'Incorrect username or password.';return sleep(Math.min(fails*600,5000))})
+    .then(function(){$('go').disabled=false})}
+  function lock(){clearTimeout(lt);KEY=null;DB=null;user=null;bal={};price=null;mode=null;sel={};shown={};editing={};draft=null;allv={};
+    [].slice.call(document.querySelectorAll('.scrim')).forEach(function(n){n.remove()});$('grid').textContent='';syncBar();loginMode();show()}
+  function arm(){clearTimeout(lt);if(user)lt=setTimeout(lock,300000)}
+  ['click','keydown','touchstart','mousemove'].forEach(function(t){document.addEventListener(t,arm,{passive:true})});
+  document.addEventListener('visibilitychange',function(){if(document.hidden)hiddenAt=Date.now();else if(user&&hiddenAt&&Date.now()-hiddenAt>120000)lock()});
+  $('go').onclick=submit;
+  [$('em'),$('pw'),$('pw2')].forEach(function(i){i.addEventListener('keydown',function(ev){if(ev.key==='Enter')submit()})});
+  $('out').onclick=lock;
+  $('bk').onclick=function(){pq.then(function(){var v=rget('vc_vault');if(!v){toast('Nothing to back up');return}
+    var a=document.createElement('a'),u=URL.createObjectURL(new Blob([v],{type:'application/json'}));a.href=u;a.download='vault-cards-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Encrypted backup downloaded')})};
+  $('lreset').onclick=function(){ask('Erase vault?','Erase',function(){rdel('vc_vault');loginMode();toast('Vault erased')},'This permanently deletes every saved card in this browser. Only do this if you forgot the password and have no backup.')};
+  $('limpa').onclick=function(){$('ifile').click()};
+  $('ifile').onchange=function(){var f=this.files[0];this.value='';if(!f)return;var r=new FileReader();r.onload=function(){var v;try{v=JSON.parse(r.result)}catch(e){}
+    if(!v||!v.salt||!v.iv||!v.ct||!v.iter){toast('Not a valid backup file');return}
+    var go=function(){rset('vc_vault',JSON.stringify({v:v.v||1,iter:v.iter,salt:v.salt,iv:v.iv,ct:v.ct}));loginMode();toast('Backup imported. Unlock with its username and password.')};
+    if(readVault())ask('Replace current vault?','Replace',go,'This replaces the vault in this browser with the backup file.');else go()};r.readAsText(f)};
+
+  var CH=[
+    {k:'eth',n:'Ethereum',s:'ETH',cg:'ethereum',rpc:'https://ethereum-rpc.publicnode.com',bs:'eth.blockscout.com'},
+    {k:'bsc',n:'BNB Chain',s:'BNB',cg:'binancecoin',rpc:'https://bsc-rpc.publicnode.com'},
+    {k:'pol',n:'Polygon',s:'POL',cg:'polygon-ecosystem-token',rpc:'https://polygon-bor-rpc.publicnode.com',bs:'polygon.blockscout.com'},
+    {k:'avax',n:'Avalanche',s:'AVAX',cg:'avalanche-2',rpc:'https://avalanche-c-chain-rpc.publicnode.com'},
+    {k:'arb',n:'Arbitrum',s:'ETH',cg:'ethereum',rpc:'https://arbitrum-one-rpc.publicnode.com',bs:'arbitrum.blockscout.com'},
+    {k:'op',n:'Optimism',s:'ETH',cg:'ethereum',rpc:'https://optimism-rpc.publicnode.com',bs:'optimism.blockscout.com'},
+    {k:'base',n:'Base',s:'ETH',cg:'ethereum',rpc:'https://base-rpc.publicnode.com',bs:'base.blockscout.com'},
+    {k:'gno',n:'Gnosis',s:'xDAI',cg:'xdai',rpc:'https://gnosis-rpc.publicnode.com',bs:'gnosis.blockscout.com'},
+    {k:'linea',n:'Linea',s:'ETH',cg:'ethereum',rpc:'https://linea-rpc.publicnode.com'},
+    {k:'scroll',n:'Scroll',s:'ETH',cg:'ethereum',rpc:'https://scroll-rpc.publicnode.com',bs:'scroll.blockscout.com'},
+    {k:'zk',n:'zkSync Era',s:'ETH',cg:'ethereum',rpc:'https://mainnet.era.zksync.io',bs:'zksync.blockscout.com'},
+    {k:'mnt',n:'Mantle',s:'MNT',cg:'mantle',rpc:'https://mantle-rpc.publicnode.com'},
+    {k:'celo',n:'Celo',s:'CELO',cg:'celo',rpc:'https://celo-rpc.publicnode.com',bs:'celo.blockscout.com'},
+    {k:'cro',n:'Cronos',s:'CRO',cg:'crypto-com-chain',rpc:'https://cronos-evm-rpc.publicnode.com'}
+  ];
+  var allv={},tm;
+  function sched(){clearTimeout(tm);tm=setTimeout(render,80)}
+  function getJ(u){return fetch(u).then(function(r){if(r.status===404)return null;if(!r.ok)throw 0;return r.json()})}
+  function getPrice(){if(price)return Promise.resolve(price);
+    var ids=['bitcoin'].concat(CH.map(function(h){return h.cg})).filter(function(x,i,a){return a.indexOf(x)===i}).join(',');
+    return getJ('https://api.coingecko.com/api/v3/simple/price?ids='+ids+'&vs_currencies=usd').then(function(j){price={};Object.keys(j).forEach(function(k){price[k]=j[k].usd});return price})}
+  function rpc(u,a){return fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_getBalance',params:[a,'latest']})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){if(!j.result)throw 0;return Number(BigInt(j.result))/1e18})}
+  function nfts(host,a){var tot=0,q='';
+    function pg(i){return getJ('https://'+host+'/api/v2/addresses/'+a+'/nft/collections'+q).then(function(j){if(!j)return tot;
+      (j.items||[]).forEach(function(x){tot+=Number(x.amount)||0});
+      if(j.next_page_params&&i<4){q='?'+Object.keys(j.next_page_params).map(function(k){return k+'='+encodeURIComponent(j.next_page_params[k])}).join('&');return pg(i+1)}
+      return tot})}
+    return pg(0)}
+  function btc(a){return getJ('https://blockstream.info/api/address/'+a).then(function(j){if(!j)return 0;var x=j.chain_stats,m=j.mempool_stats;return(x.funded_txo_sum-x.spent_txo_sum+m.funded_txo_sum-m.spent_txo_sum)/1e8})}
+  function load(){
+    var list=cards().filter(function(c){return c.address&&c.type!=='note'});
+    list.forEach(function(c){bal[c.id]={ch:{},done:0,total:0,s:net(c.address)?'go':'na'}});render();
+    getPrice().catch(function(){return{}}).then(function(p){
+      list.forEach(function(c){var b=bal[c.id],n=net(c.address);
+        if(n==='BTC'){b.total=1;var r={n:'Bitcoin',s:'BTC',amt:null,nft:null};b.ch.btc=r;
+          btc(c.address).then(function(v){r.amt=v;r.usd=p.bitcoin!=null?v*p.bitcoin:null}).catch(function(){}).then(function(){b.done++;sched()});return}
+        if(n!=='ETH')return;
+        CH.forEach(function(h){b.total++;var r={n:h.n,s:h.s,amt:null,nft:null};b.ch[h.k]=r;
+          var p1=rpc(h.rpc,c.address).then(function(v){r.amt=v;r.usd=p[h.cg]!=null?v*p[h.cg]:null}).catch(function(){});
+          var p2=h.bs?nfts(h.bs,c.address).then(function(v){r.nft=v}).catch(function(){}):Promise.resolve();
+          Promise.all([p1,p2]).then(function(){b.done++;sched()})})})})}
+  $('ref').onclick=function(){price=null;load()};
+  function fa(v){return v.toLocaleString(undefined,{maximumFractionDigits:6})}
+
+  function render(){
+    var ei=document.querySelector('.titlein');draft=ei?{id:ei.dataset.id,v:ei.value}:null;
+    rendering=true;var fe=null;
+    var list=cards().slice().reverse(),g=$('grid');g.textContent='';
+    $('empty').classList.toggle('hidden',list.length>0);
+    var tot=0,ok=0,tr=0,er=0,nt=0;
+    list.forEach(function(c){
+      var card=el('div','card'),top=el('div','top'),n=net(c.address||'');
+      if(c.type!=='note'){var ca=el('button','mini','Copy address');ca.onclick=function(){copy(c.address,'Address copied')};top.appendChild(ca)}else top.appendChild(el('span'));
+      card.appendChild(top);
+      var label=c.label||c.title,trow=el('div','titlerow');
+      if(editing[c.id]){var inp=el('input','titlein');inp.dataset.id=c.id;inp.maxLength=40;inp.placeholder='Label';
+        if(draft&&draft.id===c.id){inp.value=draft.v;inp._r=1}else inp.value=label||'';
+        inp.onkeydown=function(e){if(e.key==='Enter')rename(c.id,inp.value,true);else if(e.key==='Escape')rename(c.id,'',false)};
+        inp.onblur=function(){if(!rendering&&editing[c.id])rename(c.id,inp.value,true)};fe=inp;trow.appendChild(inp)}
+      else{trow.appendChild(el('div','title'+(label?'':' ph'),label||'Untitled'));
+        var pen=el('button','pen','✎');pen.title='Rename';pen.setAttribute('aria-label','Rename');pen.onclick=function(){editing[c.id]=true;render()};trow.appendChild(pen)}
+      card.appendChild(trow);
+      if(c.type==='note'){card.appendChild(el('div','',c.content))}
+      else{
+        var a=el('div');a.appendChild(el('div','lbl','Address'));a.appendChild(el('div','mono',c.address));card.appendChild(a);
+        var b=bal[c.id],bx=el('div','bal'),L=el('div'),R=el('span');tr++;
+        var rows=[],w=0,nf=0,fail=0,done=b&&b.s==='go'&&b.done>=b.total;
+        if(b&&b.ch)Object.keys(b.ch).forEach(function(k){var r=b.ch[k];
+          if(r.amt==null)fail++;else{if(r.usd!=null)w+=r.usd}
+          if(r.nft)nf+=r.nft;
+          if(r.amt!=null&&(allv[c.id]||r.amt>0||r.nft>0))rows.push(r)});
+        rows.sort(function(x,y){return(y.usd||0)-(x.usd||0)||(y.amt||0)-(x.amt||0)});
+        if(!b||b.s==='na'){er++;L.appendChild(el('span','','Network not supported for balance'));bx.appendChild(L);card.appendChild(bx)}
+        else{
+          L.appendChild(el('span','','Total balance'));L.appendChild(el('b','',usd(w)));
+          R.textContent=!done?('Fetching '+b.done+'/'+b.total+' chains…'):(nf+' NFT'+(nf===1?'':'s'));
+          bx.appendChild(L);bx.appendChild(R);card.appendChild(bx);
+          tot+=w;nt+=nf;
+          if(done){if(fail<b.total)ok++;else er++}
+        }
+        if(c.phrase){var p=el('div'),h=el('div','lbl'),sh=!!shown[c.id];h.appendChild(el('span','','Phrase keys'));
+          var bs=el('span');var t=el('button','mini',sh?'Hide':'Show');t.onclick=function(){shown[c.id]=!shown[c.id];render()};var cp=el('button','mini','Copy');cp.onclick=function(){copy(c.phrase,'Phrase copied · clears in 30s',true)};bs.appendChild(t);bs.appendChild(cp);h.appendChild(bs);p.appendChild(h);
+          p.appendChild(el('div','mono',sh?c.phrase:'•••• •••• •••• •••• ••••'));card.appendChild(p)}
+      }
+      var f=el('div','foot');f.appendChild(el('span','','Added '+fmt(c.at)));card.appendChild(f);
+      if(mode){card.className+=' pick'+(mode==='del'&&sel[c.id]?' sel':'');
+        card.insertBefore(el('div','pickrow',mode==='edit'?'✎ TAP TO EDIT':(sel[c.id]?'✓ SELECTED':'TAP TO SELECT')),card.firstChild);
+        card.onclick=function(e){if(e.target.closest('button,input'))return;if(mode==='edit')modal(c);else{if(sel[c.id])delete sel[c.id];else sel[c.id]=1;syncBar();render()}}}
+      g.appendChild(card)});
+    $('tot').textContent=tr?usd(tot):'—';
+    $('totn').textContent=tr?(ok+' of '+tr+' wallets loaded · '+nt+' NFTs'):'No wallets yet';
+    $('blocked').classList.toggle('hidden',!(tr&&er===tr&&!ok));
+    if(fe){fe.focus();if(fe._r){var q=fe.value.length;fe.setSelectionRange(q,q)}else fe.select()}
+    rendering=false}
+
+  function rename(id,v,save){delete editing[id];draft=null;if(save){var l=cards();l.forEach(function(x){if(x.id===id)x.label=v.trim()});save(l)}render()}
+  function ask(msg,okTxt,fn,sub){var s=el('div','scrim'),m=el('div','modal');m.appendChild(el('h1','',msg));m.appendChild(el('p','sub',sub||'This can’t be undone.'));
+    var row=el('div','row'),c=el('button','btn ghost','Cancel'),o=el('button','btn danger',okTxt);row.appendChild(c);row.appendChild(o);m.appendChild(row);
+    c.onclick=function(){s.remove()};s.onclick=function(e){if(e.target===s)s.remove()};o.onclick=function(){s.remove();fn()};s.appendChild(m);document.body.appendChild(s)}
+  function delCards(ids){ask('Delete '+ids.length+' card'+(ids.length===1?'':'s')+'?','Delete',function(){save(cards().filter(function(x){return ids.indexOf(x.id)<0}));mode=null;sel={};syncBar();render()})}
+  function syncBar(){var n=Object.keys(sel).length;$('bedit').classList.toggle('on',mode==='edit');$('bdel').classList.toggle('on',mode==='del');
+    $('mb').classList.toggle('hidden',!mode);$('mbt').textContent=mode==='edit'?'Edit mode: tap a card to edit it':'Delete mode: tap cards to select them';
+    $('mbd').classList.toggle('hidden',mode!=='del');$('mbd').textContent='Delete '+n+' selected';$('mbd').disabled=!n}
+  function setMode(m){if(m==='del'&&mode!=='del'){ask('⚠ Caution','I understand',function(){mode='del';sel={};syncBar();render()},'Deleting a card permanently removes its address and phrase keys from this browser. This can’t be undone.');return}mode=mode===m?null:m;sel={};syncBar();render()}
+  $('bedit').onclick=function(){setMode('edit')};$('bdel').onclick=function(){setMode('del')};
+  $('mbc').onclick=function(){mode=null;sel={};syncBar();render()};
+  $('mbd').onclick=function(){var ids=Object.keys(sel);if(ids.length)delCards(ids)};
+  function modal(ex){
+    var s=el('div','scrim'),m=el('div','modal');
+    m.appendChild(el('h1','',ex?'Edit Card':'Add Card'));m.appendChild(el('p','sub','Save a wallet. Balances and NFTs are fetched across 14 EVM chains.'));
+    function fld(l,node){var f=el('label','field');f.appendChild(el('span','',l));f.appendChild(node);m.appendChild(f);return node}
+    var lb=el('input','input');lb.placeholder='e.g. Main wallet';fld('Label',lb);
+    var ad=el('input','input');ad.placeholder='0x… or bc1…';ad.autocomplete='off';ad.spellcheck=false;fld('Address',ad);
+    var ph=el('textarea','input');ph.placeholder='Optional. Encrypted with your password.';ph.autocomplete='off';ph.spellcheck=false;fld('Phrase keys (optional)',ph);m.appendChild(el('div','warn','Tip: real seed phrases are safest kept offline (hardware wallet or paper).'));
+    if(ex){lb.value=ex.label||ex.title||'';ad.value=ex.address||ex.content||'';ph.value=ex.phrase||''}
+    var er=el('div','err');m.appendChild(er);
+    var row=el('div','row'),cn=el('button','btn ghost','Cancel'),sb=el('button','btn primary','Save');row.appendChild(cn);row.appendChild(sb);m.appendChild(row);
+    function close(){s.remove()}cn.onclick=close;s.onclick=function(e){if(e.target===s)close()};
+    sb.onclick=function(){var a=ad.value.trim();if(!a){er.textContent='Please enter an address.';return}
+      var l=cards(),ch=false,ph2=ph.value.trim().replace(/\s+/g,' ');
+      if(ex){l.forEach(function(x){if(x.id===ex.id){ch=(x.address||x.content)!==a;x.label=lb.value.trim();x.phrase=ph2;if(x.type==='note')x.content=a;else x.address=a}})}
+      else l.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,6),type:'wallet',label:lb.value.trim(),address:a,phrase:ph2,at:Date.now()});
+      save(l);close();render();if(!ex||ch)load()};
+    s.appendChild(m);document.body.appendChild(s);lb.focus()}
+  $('add').onclick=function(){modal()};
+
+  loginMode();show();
+})();
+</script>
+</body>
+</html>
